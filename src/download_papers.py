@@ -19,7 +19,7 @@ nips_authors = set()
 papers = list()
 paper_authors = list()
 
-temp_path = os.path.join("input", "temp.txt")
+temp_path = os.path.join("output", "temp.txt")
 
 def text_from_pdf(pdf_path, temp_path):
     if os.path.exists(temp_path):
@@ -31,15 +31,15 @@ def text_from_pdf(pdf_path, temp_path):
     os.remove(temp_path)
     return text
 
-for link in paper_links[:5]:
-#for link in paper_links:
+#for link in paper_links[:5]:
+for link in paper_links:
     paper_title = link.contents[0]
     info_link = base_url + link["href"]
     pdf_link = info_link + ".pdf"
     pdf_name = link["href"][7:] + ".pdf"
     paper_id = re.findall(r"^(\d+)-", pdf_name)[0]
     pdf = requests.get(pdf_link)
-    pdf_path = os.path.join("input", "pdfs", pdf_name)
+    pdf_path = os.path.join("output", "pdfs", pdf_name)
     pdf_file = open(pdf_path, "wb")
     pdf_file.write(pdf.content)
     pdf_file.close()
@@ -61,6 +61,6 @@ for link in paper_links[:5]:
     print(paper_title)
     papers.append([paper_id, paper_title, event_type, pdf_name, abstract, paper_text])
 
-pd.DataFrame(list(nips_authors), columns=["Id","Name"]).to_csv("input/authors.csv", index=False)
-pd.DataFrame(papers, columns=["Id", "Title", "EventType", "PdfName", "Abstract", "PaperText"]).to_csv("input/papers.csv", index=False)
-pd.DataFrame(paper_authors, columns=["Id", "PaperId", "AuthorId"]).to_csv("input/PaperAuthors.csv", index=False)
+pd.DataFrame(list(nips_authors), columns=["Id","Name"]).to_csv("output/Authors.csv", index=False)
+pd.DataFrame(papers, columns=["Id", "Title", "EventType", "PdfName", "Abstract", "PaperText"]).to_csv("output/Papers.csv", index=False)
+pd.DataFrame(paper_authors, columns=["Id", "PaperId", "AuthorId"]).to_csv("output/PaperAuthors.csv", index=False)
