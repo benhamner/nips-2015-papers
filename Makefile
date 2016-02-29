@@ -1,4 +1,10 @@
 
+input/accepted_papers.html:
+	curl https://nips.cc/Conferences/2015/AcceptedPapers -o input/accepted_papers.html
+
+output/accepted_papers.html: input/accepted_papers.html
+	cp input/accepted_papers.html output/accepted_papers.html
+
 output/Papers.csv:
 	mkdir -p output
 	mkdir -p output/pdfs
@@ -22,13 +28,14 @@ output/database.sqlite: working/noHeader/Papers.csv working/noHeader/PaperAuthor
 	sqlite3 -echo $@ < src/import.sql
 db: output/database.sqlite
 
-output/hashes.txt: output/database.sqlite
+output/hashes.txt: output/database.sqlite output/accepted_papers.html
 	-rm output/hashes.txt
 	echo "Current git commit:" >> output/hashes.txt
 	git rev-parse HEAD >> output/hashes.txt
 	echo "\nCurrent ouput md5 hashes:" >> output/hashes.txt
 	md5 output/*.csv >> output/hashes.txt
 	md5 output/*.sqlite >> output/hashes.txt
+	md5 output/*.html >> output/hashes.txt
 	md5 output/pdfs/*.pdf >> output/hashes.txt
 hashes: output/hashes.txt
 
