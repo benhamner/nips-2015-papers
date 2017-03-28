@@ -1,6 +1,6 @@
 
 input/accepted_papers.html:
-	curl https://nips.cc/Conferences/2015/AcceptedPapers -o input/accepted_papers.html
+	curl http://papers.nips.cc/book/advances-in-neural-information-processing-systems-29-2016 -o input/accepted_papers.html
 
 output/accepted_papers.html: input/accepted_papers.html
 	cp input/accepted_papers.html output/accepted_papers.html
@@ -8,7 +8,7 @@ output/accepted_papers.html: input/accepted_papers.html
 output/Papers.csv:
 	mkdir -p output
 	mkdir -p output/pdfs
-	python src/download_papers.py
+	bpython src/download_papers.py
 csv: output/Papers.csv
 
 working/noHeader/Papers.csv: output/Papers.csv

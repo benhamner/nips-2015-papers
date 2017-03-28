@@ -7,11 +7,11 @@ import requests
 import subprocess
 
 base_url  = "http://papers.nips.cc"
-index_url = "http://papers.nips.cc/book/advances-in-neural-information-processing-systems-28-2015"
+index_url = "http://papers.nips.cc/book/advances-in-neural-information-processing-systems-29-2016"
 
 r = requests.get(index_url)
 
-soup = BeautifulSoup(r.content)
+soup = BeautifulSoup(r.content, "lxml")
 paper_links = [link for link in soup.find_all('a') if link["href"][:7]=="/paper/"]
 print("%d Papers Found" % len(paper_links))
 
@@ -25,7 +25,7 @@ def text_from_pdf(pdf_path, temp_path):
     if os.path.exists(temp_path):
         os.remove(temp_path)
     subprocess.call(["pdftotext", pdf_path, temp_path])
-    f = open(temp_path)
+    f = open(temp_path, encoding="utf8")
     text = f.read()
     f.close()
     os.remove(temp_path)
@@ -43,8 +43,12 @@ for link in paper_links:
     pdf_file = open(pdf_path, "wb")
     pdf_file.write(pdf.content)
     pdf_file.close()
-    paper_soup = BeautifulSoup(requests.get(info_link).content)
-    abstract = paper_soup.find('p', attrs={"class": "abstract"}).contents[0]
+    paper_soup = BeautifulSoup(requests.get(info_link).content, "lxml")
+    try: 
+        abstract = paper_soup.find('p', attrs={"class": "abstract"}).contents[0]
+    except:
+        print("Abstract not found %s" % paper_title.encode("ascii", "replace"))
+        abstract = ""
     authors = [(re.findall(r"-(\d+)$", author.contents[0]["href"])[0],
                 author.contents[0].contents[0])
                for author in paper_soup.find_all('li', attrs={"class": "author"})]
@@ -58,7 +62,7 @@ for link in paper_links:
         raise Exception("Bad Event Data")
     event_type = event_types[0]
     paper_text = text_from_pdf(pdf_path, temp_path)
-    print(paper_title)
+    print(paper_title.encode('ascii', 'namereplace'))
     papers.append([paper_id, paper_title, event_type, pdf_name, abstract, paper_text])
 
 pd.DataFrame(list(nips_authors), columns=["Id","Name"]).to_csv("output/Authors.csv", index=False)
